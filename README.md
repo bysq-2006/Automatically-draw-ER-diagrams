@@ -6,6 +6,7 @@
 exe下载地址：通过网盘分享的文件：Draw_ER_diagram.exe
 链接: https://pan.baidu.com/s/1pXJSrJq_PJTbmrDWz1KM0g?pwd=0514 提取码: 0514
 <br>github不允许上传超过25mb的文件，所以只能用百度网盘了。
+<br>教程：https://www.bilibili.com/video/BV14hXkYTE96/?spm_id_from=333.337.search-card.all.click
 
 
 下面是一些方便后期修改整理思路的东西：<br>
