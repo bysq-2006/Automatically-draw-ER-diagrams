@@ -71,7 +71,6 @@ class mainGui(QWidget):
         painter.drawText(rect, Qt.AlignCenter, entity['name'])
     
         # Draw normal line for primary key attribute
-        print(entity)
         if isinstance(entity['primaryKey'], int):
             primary_key_index = entity['primaryKey']
             primary_key_coords = entity['attribute_coords'][primary_key_index]
