@@ -3,6 +3,9 @@
 你可以直接下载打包好的exe程序<br>
 如果exe程序不能用,请下载Python<br>
 也可以下载源代码然后自己安装pyqt5来使用<br>
+exe下载地址：通过网盘分享的文件：Draw_ER_diagram.exe
+链接: https://pan.baidu.com/s/1pXJSrJq_PJTbmrDWz1KM0g?pwd=0514 提取码: 0514
+<br>github不允许上传超过25mb的文件，所以只能用百度网盘了。
 
 
 下面是一些方便后期修改整理思路的东西：<br>
