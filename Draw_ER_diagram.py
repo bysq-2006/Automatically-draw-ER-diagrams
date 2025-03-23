@@ -122,7 +122,7 @@ class mainGui(QWidget):
 
         # 如果是主键，在属性椭圆下添加下划线
         if is_primary_key:
-            bold_pen = QPen(Qt.black, 3)  # 设置笔的宽度
+            bold_pen = QPen(Qt.black, 2)  # 设置笔的宽度
             painter.setPen(bold_pen)
             painter.drawLine(QPointF(attr_x + 8, attr_y + ellipse_height - 15), QPointF(attr_x - 8 + ellipse_width, attr_y + ellipse_height - 15))
 
