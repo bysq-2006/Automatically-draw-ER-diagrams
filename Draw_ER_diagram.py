@@ -62,25 +62,26 @@ class mainGui(QWidget):
 
     def drawEntity(self, painter, entity):
         for i, attr in enumerate(entity.get('attribute', [])):
-            self.drawAttribute(painter, attr, entity['attribute_coords'][i], (entity['x'], entity['y']))
-    
+            is_primary_key = (entity['primaryKey'] == i)
+            self.drawAttribute(painter, attr, entity['attribute_coords'][i], (entity['x'], entity['y']), is_primary_key)
+
         rect = QRectF(entity['x'], entity['y'], 100, 50)
         painter.setPen(QPen(Qt.black, 2))
         painter.setBrush(QBrush(Qt.white))
         painter.drawRect(rect)
         painter.drawText(rect, Qt.AlignCenter, entity['name'])
-    
+
         # Draw normal line for primary key attribute
         if isinstance(entity['primaryKey'], int):
             primary_key_index = entity['primaryKey']
             primary_key_coords = entity['attribute_coords'][primary_key_index]
             attr_x, attr_y = primary_key_coords
             parent_x, parent_y = entity['x'], entity['y']
-    
+
             # Calculate midpoint of the line
             mid_x = (attr_x + 50 + parent_x + 50) / 2
             mid_y = (attr_y + parent_y + 25) / 2
-    
+
             # Calculate the angle of the line
             dx = (attr_x + 50) - (parent_x + 50)
             dy = attr_y - (parent_y + 25)
@@ -89,31 +90,41 @@ class mainGui(QWidget):
                 length = 1  # Avoid division by zero
             unit_dx = dx / length
             unit_dy = dy / length
-    
+
             # Calculate the perpendicular vector
             perp_dx = -unit_dy
             perp_dy = unit_dx
-    
+
             # Draw normal line
             painter.setPen(QPen(Qt.black, 2))
             painter.drawLine(QPointF(mid_x + perp_dx * 10, mid_y + perp_dy * 10), QPointF(mid_x - perp_dx * 10, mid_y - perp_dy * 10))
 
-    def drawAttribute(self, painter, attr, coords, parent_coords):
+    def drawAttribute(self, painter, attr, coords, parent_coords, is_primary_key=False):
         if not attr.strip():  # 检测属性是否为空字符串
             return
-        
+
         attr_x, attr_y = coords
         parent_x, parent_y = parent_coords
-    
+
+        # 动态调整椭圆大小
+        ellipse_width = 100 if len(attr) <= 5 else 20 * len(attr)
+        ellipse_height = 50
+
         # Draw line connecting attribute to parent
         painter.setPen(QPen(Qt.black, 2))
-        painter.drawLine(QPointF(attr_x + 50, attr_y), QPointF(parent_x + 50, parent_y + 25))
-    
-        ellipse = QRectF(attr_x, attr_y, 100, 50)
+        painter.drawLine(QPointF(attr_x + ellipse_width / 2, attr_y), QPointF(parent_x + 50, parent_y + 25))
+
+        ellipse = QRectF(attr_x, attr_y, ellipse_width, ellipse_height)
         painter.setPen(QPen(Qt.black, 2))
         painter.setBrush(QBrush(Qt.white))
         painter.drawEllipse(ellipse)
         painter.drawText(ellipse, Qt.AlignCenter, attr)
+
+        # 如果是主键，在属性椭圆下添加下划线
+        if is_primary_key:
+            bold_pen = QPen(Qt.black, 3)  # 设置笔的宽度
+            painter.setPen(bold_pen)
+            painter.drawLine(QPointF(attr_x + 8, attr_y + ellipse_height - 15), QPointF(attr_x - 8 + ellipse_width, attr_y + ellipse_height - 15))
 
     def drawContact(self, painter, contact):
         for i, attr in enumerate(contact.get('attribute', [])):
@@ -239,14 +250,20 @@ class mainGui(QWidget):
     def getAttributeAtPosition(self, pos):
         for entity in self.ermap.entity:
             for i, coords in enumerate(entity['attribute_coords']):
+                attr = entity['attribute'][i]
                 attr_x, attr_y = coords
-                ellipse = QRectF(attr_x, attr_y, 100, 50)
+                ellipse_width = 100 if len(attr) <= 5 else 20 * len(attr)
+                ellipse_height = 50
+                ellipse = QRectF(attr_x, attr_y, ellipse_width, ellipse_height)
                 if ellipse.contains(pos):
                     return (entity, i)
         for contact in self.ermap.contact:
             for i, coords in enumerate(contact['attribute_coords']):
+                attr = contact['attribute'][i]
                 attr_x, attr_y = coords
-                ellipse = QRectF(attr_x, attr_y, 100, 50)
+                ellipse_width = 100 if len(attr) <= 5 else 20 * len(attr)
+                ellipse_height = 50
+                ellipse = QRectF(attr_x, attr_y, ellipse_width, ellipse_height)
                 if ellipse.contains(pos):
                     return (contact, i)
         return None
