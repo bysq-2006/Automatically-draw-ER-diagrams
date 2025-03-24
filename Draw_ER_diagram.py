@@ -29,12 +29,24 @@ class mainGui(QWidget):
                 entity['x'] = 100 + i * 200
                 entity['y'] = 100 + i * 150
                 entity['attribute_coords'] = [[entity['x'] + 50, entity['y'] + 75] for _ in entity['attribute']]
+            else:
+                # 确保 attribute_coords 的长度与 attribute 一致
+                if len(entity['attribute_coords']) > len(entity['attribute']):
+                    entity['attribute_coords'] = entity['attribute_coords'][:len(entity['attribute'])]
+                elif len(entity['attribute_coords']) < len(entity['attribute']):
+                    entity['attribute_coords'].extend([[entity['x'] + 50, entity['y'] + 75] for _ in range(len(entity['attribute']) - len(entity['attribute_coords']))])
     
         for i, contact in enumerate(self.ermap.contact):
             if 'x' not in contact or 'y' not in contact or 'attribute_coords' not in contact:
                 contact['x'] = 150 + i * 200
                 contact['y'] = 150 + i * 150
                 contact['attribute_coords'] = [[contact['x'] + 50, contact['y'] + 75] for _ in contact['attribute']]
+            else:
+                # 确保 attribute_coords 的长度与 attribute 一致
+                if len(contact['attribute_coords']) > len(contact['attribute']):
+                    contact['attribute_coords'] = contact['attribute_coords'][:len(contact['attribute'])]
+                elif len(contact['attribute_coords']) < len(contact['attribute']):
+                    contact['attribute_coords'].extend([[contact['x'] + 50, contact['y'] + 75] for _ in range(len(contact['attribute']) - len(contact['attribute_coords']))])
 
     def showHelpDialog(self):
         msg_box = QMessageBox(self)
@@ -100,6 +112,9 @@ class mainGui(QWidget):
             painter.drawLine(QPointF(mid_x + perp_dx * 10, mid_y + perp_dy * 10), QPointF(mid_x - perp_dx * 10, mid_y - perp_dy * 10))
 
     def drawAttribute(self, painter, attr, coords, parent_coords, is_primary_key=False):
+        """
+        这里绘画的是单个的椭圆和线，会在drawEntity被遍历调用
+        """
         if not attr.strip():  # 检测属性是否为空字符串
             return
 
@@ -107,7 +122,7 @@ class mainGui(QWidget):
         parent_x, parent_y = parent_coords
 
         # 动态调整椭圆大小
-        ellipse_width = 100 if len(attr) <= 5 else 20 * len(attr)
+        ellipse_width = 100 if len(attr) <= 5 else 22 * len(attr)
         ellipse_height = 50
 
         # Draw line connecting attribute to parent
@@ -124,7 +139,9 @@ class mainGui(QWidget):
         if is_primary_key:
             bold_pen = QPen(Qt.black, 2)  # 设置笔的宽度
             painter.setPen(bold_pen)
-            painter.drawLine(QPointF(attr_x + 8, attr_y + ellipse_height - 15), QPointF(attr_x - 8 + ellipse_width, attr_y + ellipse_height - 15))
+            text_width = painter.fontMetrics().width(attr)  # 获取文本的宽度
+            painter.drawLine(QPointF(attr_x + (ellipse_width - text_width) / 2, attr_y + ellipse_height - 15), 
+                            QPointF(attr_x + (ellipse_width + text_width) / 2, attr_y + ellipse_height - 15))
 
     def drawContact(self, painter, contact):
         for i, attr in enumerate(contact.get('attribute', [])):
@@ -259,6 +276,8 @@ class mainGui(QWidget):
                     return (entity, i)
         for contact in self.ermap.contact:
             for i, coords in enumerate(contact['attribute_coords']):
+                if i >= len(contact['attribute']):
+                    continue  # 确保索引 i 在 contact['attribute'] 列表的范围内
                 attr = contact['attribute'][i]
                 attr_x, attr_y = coords
                 ellipse_width = 100 if len(attr) <= 5 else 20 * len(attr)
